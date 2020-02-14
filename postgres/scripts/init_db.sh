@@ -1,0 +1,1 @@
+docker exec -it platform-dev-env_postgres_1 psql -U sogema -c "create database keycloak"
