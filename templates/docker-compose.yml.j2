@@ -1,0 +1,69 @@
+version: "3.3"
+services:
+
+
+  # ****** Sogema products ******
+
+{% if is_datadog_enabled %}
+  datadog:
+    restart: always
+    image: datadog/docker-dd-agent:latest
+    ports:
+      - "8125:8125/udp"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro 
+      - /proc/:/host/proc/:ro 
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro 
+    environment:
+      API_KEY: "{{ dd_key }}"
+      SD_BACKEND: "docker"
+      TAGS: "environment:{{ environment_name }},role:docker,product:foncier"
+      DD_HOSTNAME: "{{ full_hostname }}"
+      {% if is_dd_process_agent_enabled is defined %}DD_PROCESS_AGENT_ENABLED: "{{ is_dd_process_agent_enabled }}"
+      {% endif %}          
+      {% if is_dd_apm_enabled is defined %}DD_APM_ENABLED: "{{ is_dd_apm_enabled }}"
+      {% endif %}      
+{% endif %}
+
+
+
+  
+  # ****** 3rd parties ******
+
+  # RabbitMQ
+  rabbitmq:
+    image: "rabbitmq:management"
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    labels:
+      NAME: "rabbitmq"
+    volumes:
+      - rmq_data:/var/lib/rabbitmq
+  
+  # ****** Persistence ******
+
+  # MongoDB
+  # Databases : epip
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - epip
+
+# ****** Volumes ******
+volumes:
+  mongo_data:
+  rmq_data:
+
+# ****** Networks ******
+networks:
+  epip:
