@@ -26,8 +26,34 @@ services:
 {% endif %}
 
 
+  epip-ui:
+    image: sogema-docker.jfrog.io/sogema/epip-ui:dev
+    restart: always
+    environment:
+      EPIP_API_URL: "http://epip-api:3200"
+    ports:
+      - 4200:4200
+    networks:
+      - epip
+    depends_on:
+      - epip-api
 
-  
+  # EPIP API
+  epip-api:
+    image: sogema-docker.jfrog.io/sogema/epip-api:dev
+    restart: always
+    ports:
+      - 3200:3200
+    environment:
+      PORT: 3200
+      LOG_LEVEL_CONSOLE: info # possible values: error, warn, info, http, verbose, debug, silly
+      DB_URL: mongodb://mongo:27017/epip
+      RMQ_URL: amqp://localhost:5672
+      RMQ_QUEUE: my_queue
+      KEYCLOAK_URL: http://dev-keycloak01.az.sogema.local:8080
+      KEYCLOAK_CLIENT_ID: epip-api
+      KEYCLOAK_REALM: epip-pp-ml
+
   # ****** 3rd parties ******
 
   # RabbitMQ
