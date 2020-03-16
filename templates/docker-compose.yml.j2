@@ -44,15 +44,17 @@ services:
     restart: always
     ports:
       - 3200:3200
+    networks:
+      - epip      
     environment:
       PORT: 3200
-      LOG_LEVEL_CONSOLE: info # possible values: error, warn, info, http, verbose, debug, silly
+      LOG_LEVEL_CONSOLE: "{{ log_level_console }}" # possible values: error, warn, info, http, verbose, debug, silly
       DB_URL: mongodb://mongo:27017/epip
       RMQ_URL: amqp://localhost:5672
       RMQ_QUEUE: my_queue
-      KEYCLOAK_URL: http://dev-keycloak01.az.sogema.local:8080
-      KEYCLOAK_CLIENT_ID: epip-api
-      KEYCLOAK_REALM: epip-pp-ml
+      KEYCLOAK_URL: "{{ keycloak_url }}"
+      KEYCLOAK_CLIENT_ID:  "{{ keycloak_client_id }}"
+      KEYCLOAK_REALM: "{{ keycloak_realm }}"
 
   # ****** 3rd parties ******
 
