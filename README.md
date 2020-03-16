@@ -1,4 +1,4 @@
-# eFiling Environment Automation #
+# Electronic Payment Integration Platform Environment Automation #
 
 This repo contains the ansible scripts + docker-compose file to install/update the eFiling App Tier environments + run docker container.
 
