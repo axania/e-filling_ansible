@@ -50,8 +50,6 @@ services:
       PORT: 3200
       LOG_LEVEL_CONSOLE: "{{ log_level_console }}" # possible values: error, warn, info, http, verbose, debug, silly
       DB_URL: mongodb://mongo:27017/epip
-      RMQ_URL: amqp://localhost:5672
-      RMQ_QUEUE: my_queue
       KEYCLOAK_URL: "{{ keycloak_url }}"
       KEYCLOAK_CLIENT_ID:  "{{ keycloak_client_id }}"
       KEYCLOAK_REALM: "{{ keycloak_realm }}"
