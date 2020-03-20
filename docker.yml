@@ -10,21 +10,43 @@
   tasks:
 
   - name: set timezone to "{{timezone}}"
-    timezone:
-      name: "{{timezone}}"
-    tags:
-       - prep
+      timezone:
+        name: "{{timezone}}"
+      tags:
+        - prep
 
   - name: Update APT-GET cache
     apt: update_cache=yes
     tags:
-       - prep
+      - prep
 
-  - name: Update repository for Docker part 1 - Install some stuff
-    become: yes
-    command: "sudo apt-get install -y apt-transport-https ca-certificates curl  software-properties-common"
+  - name: Installs software-properties-common for Docker
+    apt:
+      name: software-properties-common
+      state: present
     tags:
-       - prep
+      - prep
+
+  - name: Installs apt-transport-https for Docker
+    apt:
+      name: software-properties-common
+      state: present
+    tags:
+      - prep
+
+  - name: Installs ca-certificates for Docker
+    apt:
+      name: software-properties-common
+      state: present
+    tags:
+      - prep
+      
+  - name: Installs curl for Docker
+    apt:
+      name: curl
+      state: present
+    tags:
+      - prep
 
   - name: Add GPG key for Docker
     apt_key:
