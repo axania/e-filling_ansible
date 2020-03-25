@@ -8,12 +8,12 @@
     save_hosts: "{{ etc_save_hosts }}"
 
   tasks:
-  - name: set timezone to "{{timezone}}"
-    timezone:
-      name: "{{timezone}}"
-    tags:
-      - prep
 
+  - name: set timezone to "{{timezone}}"
+      timezone:
+        name: "{{timezone}}"
+      tags:
+        - prep
 
   - name: Update APT-GET cache
     apt: update_cache=yes
@@ -204,7 +204,7 @@
        - deploy
 
   - name: Run the 'down' command for Docker Compose
-    docker_compose:
+    docker_service:
       project_name: "{{ansible_ssh_user}}"
       project_src: /home/{{ansible_ssh_user}}
       state: absent
@@ -212,7 +212,7 @@
        - deploy
 
   - name: Run the 'up' command for Docker Compose
-    docker_compose:
+    docker_service:
       project_name: "{{ansible_ssh_user}}"
       project_src: /home/{{ansible_ssh_user}}
       state: present
