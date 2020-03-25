@@ -9,14 +9,14 @@
 
   tasks:
 
-  - name: set timezone to "{{timezone}}"
-      timezone:
-        name: "{{timezone}}"
-      tags:
-        - prep
-
   - name: Update APT-GET cache
     apt: update_cache=yes
+    tags:
+      - prep
+
+  - name: set timezone to "{{timezone}}"
+    timezone:
+      name: "{{timezone}}"
     tags:
       - prep
 
