@@ -27,7 +27,7 @@ services:
 
 
   epip-ui:
-    image: sogema-docker.jfrog.io/sogema/epip-ui:{{ epip-ui-version }}}
+    image: sogema-docker.jfrog.io/sogema/epip-ui:{{ epip_ui_version }}}
     restart: always
     environment:
       EPIP_API_URL: "http://epip-api:3200"
@@ -40,7 +40,7 @@ services:
 
   # EPIP API
   epip-api:
-    image: sogema-docker.jfrog.io/sogema/epip-api:{{ epip-api-version }}}
+    image: sogema-docker.jfrog.io/sogema/epip-api:{{ epip_api_version }}}
     restart: always
     ports:
       - 3200:3200
