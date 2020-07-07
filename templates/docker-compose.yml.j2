@@ -60,26 +60,11 @@ services:
       SIGTAS_SECURED: "{{ sigtas_secured }}"
       SIGTAS_USERNAME: "{{ sigtas_username }}"
       SIGTAS_PASSWORD: "{{ sigtas_password }}"
-      #REDIS_HOST: "redis"
-      #REDIS_PORT: 6379
+      REDIS_HOST: "redis" # TODO not used, to remove when removed from config
+      REDIS_PORT: 6379 # TODO not used, to remove when removed from config
       EPIP_UI_URL: "{{ epip_ui_url }}"
       REFRESH_ACCESS_CRON_TIME: "{{ refresh_access_cron_time }}"
-  # ****** 3rd parties ******
 
-  {# # RabbitMQ
-  rabbitmq:
-    image: "rabbitmq:management"
-    environment:
-      RABBITMQ_DEFAULT_USER: "guest"
-      RABBITMQ_DEFAULT_PASS: "guest"
-      RABBITMQ_DEFAULT_VHOST: "/"
-    ports:
-      - "15672:15672"
-      - "5672:5672"
-    labels:
-      NAME: "rabbitmq"
-    volumes:
-      - rmq_data:/var/lib/rabbitmq   #}
 
   # ****** Persistence ******
 
@@ -94,15 +79,6 @@ services:
       - mongo_data:/data/db
     networks:
       - epip
-
-  {# # Redis
-  redis:
-    image: redis
-    restart: always
-    ports: 
-      - 6379:6379
-    networks: 
-      - epip #}
 
 # ****** Volumes ******
 volumes:
