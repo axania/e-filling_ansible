@@ -17,7 +17,7 @@ services:
     environment:
       API_KEY: "{{ dd_key }}"
       SD_BACKEND: "docker"
-      TAGS: "environment:{{ environment_name }},role:docker,product:foncier"
+      TAGS: "environment:{{ environment_name }},role:docker,product:epip"
       DD_HOSTNAME: "{{ full_hostname }}"
       {% if is_dd_process_agent_enabled is defined %}DD_PROCESS_AGENT_ENABLED: "{{ is_dd_process_agent_enabled }}"
       {% endif %}          
