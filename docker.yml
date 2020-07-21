@@ -9,42 +9,27 @@
 
   tasks:
 
-  - name: Update APT-GET cache
-    apt: update_cache=yes
-    tags:
-      - prep
-
   - name: set timezone to "{{timezone}}"
     timezone:
       name: "{{timezone}}"
     tags:
       - prep
 
+  - name: Installs or updates python3 and pip3 , due to compatibility and upgrade needs
+    apt:
+      # the python3-lxml is needed for the lrk.flyway role, which is not being correctly installed by the role
+      name: ['python3','python3-pip','python3-lxml']
+      state: latest
+      install_recommends: yes
+    tags:
+      - prep
+      - updates
+     
   - name: Installs software-properties-common for Docker
     apt:
-      name: software-properties-common
-      state: present
-    tags:
-      - prep
-
-  - name: Installs apt-transport-https for Docker
-    apt:
-      name: software-properties-common
-      state: present
-    tags:
-      - prep
-
-  - name: Installs ca-certificates for Docker
-    apt:
-      name: software-properties-common
-      state: present
-    tags:
-      - prep
-      
-  - name: Installs curl for Docker
-    apt:
-      name: curl
-      state: present
+      name: ['apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common']
+      state: latest
+      update_cache: yes
     tags:
       - prep
 
@@ -55,46 +40,103 @@
     tags:
        - prep
 
-  - name: Add APT repo for Docker
-    apt_repository:
+  - apt_repository:
       repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
       state: present
     tags:
-       - prep
+      - prep
 
-  - name: Update APT-GET cache again
-    apt: update_cache=yes
-    tags:
-       - prep
-
-  - name: Install GIT
-    apt:
-      name: git
-      state: present
+  - name: Update APT-GET cache again, removes useless packages and remove dependencies that are no longer required
+    apt: 
       update_cache: yes
+      autoclean: yes
+      autoremove: yes
     tags:
-       - prep
-
-  - name: Install docker-ce with the updated cache and repo
-    apt:
-      name: docker-ce={{ docker_ce_version }}
-      state: present
-      update_cache: yes
-    tags:
-       - prep
+      - prep
+      - updates
 
   - name: Make sure we have a 'docker' group
     group:
       name: docker
       state: present
     tags:
-       - prep
+      - prep
+
+  - name: Create the 'docker' user
+    user:
+      name: "{{ansible_ssh_user}}"
+      group: docker
+      append: yes
+    tags:
+      - prep
+
+  - name: Make sure we have a 'docker' group
+    group:
+      name: docker
+      state: present
+    tags:
+      - prep
 
   - name: Add current user to Docker group
     user:
       name: "{{ansible_ssh_user}}"
       group: docker
       append: yes
+    tags:
+       - prep
+
+  - name: Uninstalls Docker-py library for Python (used by ansible)
+    shell: "pip3 uninstall docker-py -y"
+    ignore_errors: yes
+    tags:
+      - prep
+      - deploy
+      - updates
+
+  - name: Installs Docker library for Python (used by ansible)
+    pip:
+      name: docker
+      state: latest
+    tags:
+      - prep
+      - deploy
+      - updates
+
+  - name: Installs Docker-Compose library for Python (used by ansible)
+    pip:
+      name: docker-compose
+      state: latest
+    tags:
+      - prep
+      - deploy
+      - updates
+
+  - name: Uninstall docker-ce-cli 
+    # This task is needed to force uninstalling thr Docker's CLI package as it can be sometimes installed in a different version, causing conflicts
+    apt:
+      name: docker-ce-cli
+      state: absent
+      force: true
+    tags:
+      - prep
+      - deploy
+
+  - name: Install docker and docker-compose 
+    apt:
+      name: ['docker-ce={{ docker_ce_version }}','docker-compose']
+      state: present
+      force: true
+      # This following option is needed in case of having accidentaly installed a higher version of Docker, incompatible to the certified one for eFiling 
+      dpkg_options: force-downgrade
+    tags:
+      - prep
+      - deploy
+
+  - name: Install GIT
+    apt:
+      name: git
+      state: present
+      update_cache: yes
     tags:
        - prep
 
@@ -225,3 +267,4 @@
   roles:
     - { role: soplakanets.hosts }
     - { role: ypsman.resolv }
+

@@ -35,8 +35,8 @@ services:
       - 4200:4200
     networks:
       - epip
-    depends_on:
-      - epip-api
+#    depends_on:
+#      - epip-api
 
   # EPIP API
   epip-api:
@@ -49,7 +49,7 @@ services:
     environment:
       PORT: 3200
       LOG_LEVEL_CONSOLE: "{{ log_level_console }}" # possible values: error, warn, info, http, verbose, debug, silly
-      DB_URL: mongodb://mongo:27017/epip
+      DB_URL: "{{ db_url }}"
       KEYCLOAK_URL: "{{ keycloak_url }}"
       KEYCLOAK_CLIENT_ID:  "{{ keycloak_client_id }}"
       KEYCLOAK_REALM: "{{ keycloak_realm }}"
