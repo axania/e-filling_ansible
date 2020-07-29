@@ -8,7 +8,7 @@ volumes:
 
 # Define the services/containers to be run
 services:
-{% if is_datadog_on_docker %}
+{% if is_datadog_enabled %}
   datadog:
     restart: always
     image: datadog/docker-dd-agent:12.6.5271-alpine
@@ -47,7 +47,6 @@ services:
 {% endif %}
     ports:
       - 8080:8080
-    volumes:
 {% if 'keycloak-db' in available_docker_services %}
     depends_on:
       - keycloak-db
