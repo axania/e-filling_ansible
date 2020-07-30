@@ -198,7 +198,7 @@
 
   - name: Install Docker Compose
     pip:
-       name: docker-compose
+      name: docker-compose
        version: "{{ docker_compose_version if docker_compose_version else omit }}"
        state: present
     tags:
