@@ -104,6 +104,20 @@ services:
     networks: 
       - epip
 
+{% if is_redis_commander_enabled %}
+  # Redis Commander (Redis client)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    restart: always
+    environment:
+      REDIS_HOSTS: redis
+    ports:
+    - 8081:8081
+    networks:
+    - epip
+{% endif %}
+
+
 # ****** Volumes ******
 volumes:
   mongo_data:
