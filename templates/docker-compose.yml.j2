@@ -27,7 +27,7 @@ services:
 
 {% if is_grav_enabled %}
   epip-docs:
-    image: sogema-docker.jfrog.io/sogema/epip-docs:dev
+    image: sogema-docker.jfrog.io/sogema/epip-docs:{{ epip_api_version }}
     restart: always
     ports:
       - "80:80"
