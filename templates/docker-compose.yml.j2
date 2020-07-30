@@ -25,6 +25,23 @@ services:
       {% endif %}      
 {% endif %}
 
+{% if is_grav_enabled %}
+  epip-docs:
+    image: sogema-docker.jfrog.io/sogema/epip-docs:dev
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - ADMIN_USER: {{ grav_admin_user }}
+      - ADMIN_PASSWORD: {{ grav_admin_password }}
+      - ADMIN_EMAIL: {{ grav_admin_email }}
+      - ADMIN_PERMISSIONS: {{ grav_admin_permissions }}
+      - ADMIN_FULLNAME: {{ grav_admin_fullname }}
+      - ADMIN_TITLE: {{ grav_admin_title }}
+      - DOMAIN: {{ grav_domain }}
+      - GENERATE_CERTS: {{ grav_generate_certs }} 
+{% endif %}
 
   epip-ui:
     image: sogema-docker.jfrog.io/sogema/epip-ui:{{ epip_ui_version }}
@@ -35,8 +52,6 @@ services:
       - 4200:4200
     networks:
       - epip
-#    depends_on:
-#      - epip-api
 
   # EPIP API
   epip-api:
