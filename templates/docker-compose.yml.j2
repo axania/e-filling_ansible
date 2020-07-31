@@ -33,14 +33,14 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      ADMIN_USER: {{ grav_admin_user }}
-      ADMIN_PASSWORD: {{ grav_admin_password }}
-      ADMIN_EMAIL: {{ grav_admin_email }}
-      ADMIN_PERMISSIONS: {{ grav_admin_permissions }}
-      ADMIN_FULLNAME: {{ grav_admin_fullname }}
-      ADMIN_TITLE: {{ grav_admin_title }}
-      DOMAIN: {{ grav_domain }}
-      GENERATE_CERTS: {{ grav_generate_certs }} 
+      ADMIN_USER: "{{ grav_admin_user }}"
+      ADMIN_PASSWORD: "{{ grav_admin_password }}"
+      ADMIN_EMAIL: "{{ grav_admin_email }}"
+      ADMIN_PERMISSIONS: "{{ grav_admin_permissions }}"
+      ADMIN_FULLNAME: "{{ grav_admin_fullname }}"
+      ADMIN_TITLE: "{{ grav_admin_title }}"
+      DOMAIN: "{{ grav_domain }}"
+      GENERATE_CERTS: "{{ grav_generate_certs }}" 
 {% endif %}
 
   epip-ui:
