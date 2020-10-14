@@ -1,37 +1,31 @@
-# Electronic Payment Integration Platform Environment Automation #
+# Electronic Payment Integration Platform - Environment Automation
 
 This repo contains the ansible scripts + docker-compose file to install/update the eFiling App Tier environments + run docker container.
 
-### What is this repository for? ###
+## What is this repository for
 
-* Installs and updates E-Payment (EPIP) environments 
+* Installs and updates E-Payment (EPIP) environments
 
+## Environments
 
-### Environments ### 
+Since this is only the playbooks projects, please find the available environments into the epip-ansible-<owner/coutry> repositories
 
-Since this is only the playbooks projects, please find the available environments into the epip-ansible-<owner/coutry> repository
+## How to set up
 
-### How to set up ###
+Make sure you have Ansible 2.8.5 installed.
 
-Make sure you have Ansible 2.8.5 installed. 
-
-```
-$ sudo apt-get update && sudo apt-get -y upgrade
-$ sudo apt-get install python-pip
-$ sudo pip install 'ansible==2.8.5'
-
+``` bash
+sudo apt-get update && sudo apt-get -y upgrade
+sudo apt-get install python-pip
+sudo pip install 'ansible==2.8.5'
 ```
 
-### Install - Prefered installation order ###
+## Install - Prefered installation order
 
-#### Installs Docker and Containers ####
+### 1. Installs Docker and Containers
 
-ansible-playbook -i environments/<env-folder>/<inventory-file> docker.yml --ask-vault-pass
+ansible-playbook -i environments/\<env-folder>/\<inventory-file> docker.yml --ask-vault-pass
 
-## Deploy - New Releases ###
+### 2. Deploy - New Releases
 
-ansible-playbook -i environments/<env-folder>/<inventory-file> docker.yml --tag deploy --ask-vault-pass
-
-### Authors ###
-
-* Marcos Garcia - marcos.garcia@sogematech.com
+ansible-playbook -i environments/\<env-folder>/\<inventory-file> docker.yml --tag deploy --ask-vault-pass
