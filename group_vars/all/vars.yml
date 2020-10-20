@@ -1,0 +1,23 @@
+---
+
+# Default variables
+
+## Defined in 'inventory' file
+#ansible_ssh_host:
+#ansible_ssh_user:
+#ansible_ssh_pass:
+#ansible_python_interpreter:
+
+# dd_key:
+# environment_name:
+
+## Playbook configuration
+#dns_resolv_searchpath:
+#dns_server_list:
+#etc_save_hosts:
+#docker_ce_version:
+#item:
+#available_docker_services:
+#full_hostname:
+#is_dd_process_agent_enabled:
+#is_dd_apm_enabled:

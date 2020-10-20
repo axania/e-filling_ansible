@@ -1,0 +1,59 @@
+---
+
+# Default variables
+
+## Services variables
+
+### EPIP docs
+# grav_admin_user:
+# grav_admin_password:
+# grav_admin_email:
+# grav_admin_permissions:
+# grav_admin_fullname:
+# grav_admin_title:
+# grav_domain:
+# grav_generate_certs:
+
+### EPIP UI
+# epip_ui_version:
+
+### EPIP API
+# epip_api_version:
+# log_level_console:
+# db_url:
+# keycloak_url:
+# keycloak_client_id:
+# keycloak_realm:
+# keycloak_admin_username:
+# keycloak_admin_password:
+# keycloak_admin_refresh_token_interval:
+# sigtas_url:
+# sigtas_secured:
+# sigtas_username:
+# sigtas_password:
+# epip_ui_url:
+# refresh_access_cron_time:
+# reminder_emails_enabled:
+
+### Feature flags
+is_redis_commander_enabled: False
+is_grav_enabled: False
+is_datadog_enabled: False
+
+### Datadog
+is_dd_process_agent_enabled: False
+is_dd_apm_enabled: False
+
+
+### Keycloak
+# keycloak_version:
+# db_addr:
+# db_port:
+# db_user:
+# db_pass:
+# db_name:
+# keycloak_user:
+# keycloak_password:
+# kc_param_proxy_forward:
+# keycloak_dir:
+# keycloak_data_disk:

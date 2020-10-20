@@ -19,9 +19,11 @@ services:
       SD_BACKEND: "docker"
       TAGS: "environment:{{ environment_name }},role:docker,product:epip"
       DD_HOSTNAME: "{{ full_hostname }}"
-      {% if is_dd_process_agent_enabled is defined %}DD_PROCESS_AGENT_ENABLED: "{{ is_dd_process_agent_enabled }}"
+      {% if is_dd_process_agent_enabled is defined %}
+      DD_PROCESS_AGENT_ENABLED: "{{ is_dd_process_agent_enabled }}"
       {% endif %}          
-      {% if is_dd_apm_enabled is defined %}DD_APM_ENABLED: "{{ is_dd_apm_enabled }}"
+      {% if is_dd_apm_enabled is defined %
+      }DD_APM_ENABLED: "{{ is_dd_apm_enabled }}"
       {% endif %}      
 {% endif %}
 
@@ -63,7 +65,7 @@ services:
       - epip      
     environment:
       PORT: 3200
-      LOG_LEVEL_CONSOLE: "{{ log_level_console }}" # possible values: error, warn, info, http, verbose, debug, silly
+      LOG_LEVEL_CONSOLE: "{{ log_level_console }}"
       DB_URL: "{{ db_url }}"
       KEYCLOAK_URL: "{{ keycloak_url }}"
       KEYCLOAK_CLIENT_ID:  "{{ keycloak_client_id }}"
@@ -71,6 +73,10 @@ services:
       KEYCLOAK_ADMIN_USERNAME: "{{ keycloak_admin_username }}"
       KEYCLOAK_ADMIN_PASSWORD: "{{ keycloak_admin_password }}"
       KEYCLOAK_ADMIN_REFRESH_TOKEN_INTERVAL: "{{ keycloak_admin_refresh_token_interval }}"
+      KEYCLOAK_SEED_SIGTAS_USERNAME: "{{ keycloak_seed_sigtas_username }}"
+      KEYCLOAK_SEED_SIGTAS_PASSWORD: "{{ keycloak_seed_sigtas_password }}"
+      KEYCLOAK_SEED_DGI_USERNAME: "{{ keycloak_seed_dgi_username }}"
+      KEYCLOAK_SEED_DGI_TEMP_PASSWORD: "{{ keycloak_seed_dgi_temp_password }}"
       SIGTAS_URL: "{{ sigtas_url }}"
       SIGTAS_SECURED: "{{ sigtas_secured }}"
       SIGTAS_USERNAME: "{{ sigtas_username }}"
