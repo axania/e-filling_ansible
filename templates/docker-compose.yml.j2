@@ -22,8 +22,8 @@ services:
       {% if is_dd_process_agent_enabled is defined %}
       DD_PROCESS_AGENT_ENABLED: "{{ is_dd_process_agent_enabled }}"
       {% endif %}          
-      {% if is_dd_apm_enabled is defined %
-      }DD_APM_ENABLED: "{{ is_dd_apm_enabled }}"
+      {% if is_dd_apm_enabled is defined %}
+      DD_APM_ENABLED: "{{ is_dd_apm_enabled }}"
       {% endif %}      
 {% endif %}
 
