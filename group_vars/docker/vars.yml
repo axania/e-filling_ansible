@@ -36,13 +36,13 @@
 # reminder_emails_enabled:
 
 ### Feature flags
-is_redis_commander_enabled: False
-is_grav_enabled: False
-is_datadog_enabled: False
+# is_redis_commander_enabled: False
+# is_grav_enabled: False
+# is_datadog_enabled: False
 
 ### Datadog
-is_dd_process_agent_enabled: False
-is_dd_apm_enabled: False
+# is_dd_process_agent_enabled: False
+# is_dd_apm_enabled: False
 
 
 ### Keycloak
