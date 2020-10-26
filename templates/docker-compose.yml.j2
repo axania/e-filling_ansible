@@ -64,6 +64,7 @@ services:
     networks:
       - epip      
     environment:
+      TZ: "{{timezone}}"
       PORT: 3200
       LOG_LEVEL_CONSOLE: "{{ log_level_console }}"
       DB_URL: "{{ db_url }}"
