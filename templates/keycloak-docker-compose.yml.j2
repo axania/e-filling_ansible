@@ -1,0 +1,73 @@
+version: '3.3' # specify docker-compose version
+
+volumes:
+  data:
+{% if 'keycloak-db' in available_docker_services and keycloak_data_disk is not defined %}
+  keycloak-postgres:
+{% endif %}
+
+# Define the services/containers to be run
+services:
+{% if is_datadog_enabled %}
+  datadog:
+    restart: always
+    image: datadog/docker-dd-agent:12.6.5271-alpine
+    ports:
+      - "8125:8125/udp"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro 
+      - /proc/:/host/proc/:ro 
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro 
+    environment:
+      API_KEY: "{{ dd_key }}"
+      SD_BACKEND: "docker"
+      TAGS: "environment:{{ environment_name }},role:keycloak"
+{% endif %}
+
+{% if 'keycloak' in available_docker_services %}
+  keycloak:
+    restart: always
+    image: jboss/keycloak:{{ keycloak_version }} 
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: "{{ db_addr }}" 
+      DB_PORT: "{{ db_port }}"
+      DB_DATABASE: "{{ db_name }}"   
+      DB_USER: "{{ db_user }}"
+      DB_PASSWORD: "{{ db_pass }}"
+      KEYCLOAK_USER: "{{ keycloak_user }}"
+      KEYCLOAK_PASSWORD: "{{ keycloak_password }}"
+{% if kc_param_proxy_forward is defined %}
+      PROXY_ADDRESS_FORWARDING: "{{ kc_param_proxy_forward }}"
+{% endif %}
+      # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
+      #JDBC_PARAMS: "ssl=true"
+{% if realm_id is defined %}
+    command: ["-b", "0.0.0.0", "-bmanagement", "0.0.0.0", "-Dkeycloak.import=/{{ keycloak_dir }}/platform-realm.json,/{{ keycloak_dir }}/platform-mm-realm.json,/{{ keycloak_dir }}/platform-im-realm.json"]
+{% endif %}
+    ports:
+      - 8080:8080
+{% if 'keycloak-db' in available_docker_services %}
+    depends_on:
+      - keycloak-db
+{% endif %}
+{% endif %}
+
+{% if 'keycloak-db' in available_docker_services %}
+  keycloak-db:
+    image: postgres:10.4-alpine
+    restart: always
+    volumes:
+{% if keycloak_data_disk is not defined %}
+      - keycloak-postgres:/var/lib/postgresql/data
+{% else %}
+      - {{ keycloak_data_disk }}/keycloak-postgres:/var/lib/postgresql/data
+{% endif %}
+    ports:
+      - "{{ db_port }}:5432"
+    environment:
+      POSTGRES_USER: "{{ db_user }}"
+      POSTGRES_PASSWORD: "{{ db_pass }}"
+      POSTGRES_DB: "{{ db_name }}"    
+      PGDATA: /var/lib/postgresql/data/pgdata
+{% endif %}

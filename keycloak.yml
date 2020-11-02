@@ -1,5 +1,5 @@
 ---
-- hosts: docker
+- hosts: keycloak
   become: yes
 
   vars:
@@ -7,29 +7,21 @@
     resolv_dns_server: "{{ dns_server_list }}"
     save_hosts: "{{ etc_save_hosts }}"
 
-  tasks:
-
+  pre_tasks:
   - name: set timezone to "{{timezone}}"
     timezone:
       name: "{{timezone}}"
     tags:
       - prep
 
-  - name: Installs or updates python3 and pip3 , due to compatibility and upgrade needs
-    apt:
-      # the python3-lxml is needed for the lrk.flyway role, which is not being correctly installed by the role
-      name: ['python3','python3-pip','python3-lxml']
-      state: latest
-      install_recommends: yes
+  - name: Update APT-GET cache
+    apt: update_cache=yes
     tags:
       - prep
-      - updates
-     
-  - name: Installs software-properties-common for Docker
-    apt:
-      name: ['apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common']
-      state: latest
-      update_cache: yes
+
+  - name: Update repository for Docker part 1 - Install some stuff
+    become: yes
+    command: "sudo apt-get install -y apt-transport-https ca-certificates curl  software-properties-common python3-pip"
     tags:
       - prep
 
@@ -38,35 +30,33 @@
       url: "https://download.docker.com/linux/ubuntu/gpg"
       state: present
     tags:
-       - prep
+      - prep
 
-  - apt_repository:
+  - name: Add APT repo for Docker
+    apt_repository:
       repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
       state: present
     tags:
       - prep
 
-  - name: Update APT-GET cache again, removes useless packages and remove dependencies that are no longer required
-    apt: 
-      update_cache: yes
-      autoclean: yes
-      autoremove: yes
+  - name: Update APT-GET cache again
+    apt: update_cache=yes
     tags:
       - prep
-      - updates
 
-  - name: Make sure we have a 'docker' group
-    group:
-      name: docker
+  - name: Installs GIT
+    apt:
+      name: git
       state: present
+      update_cache: yes
     tags:
       - prep
 
-  - name: Create the 'docker' user
-    user:
-      name: "{{ansible_ssh_user}}"
-      group: docker
-      append: yes
+  - name: Installs docker-ce with the updated cache and repo
+    apt:
+      name: docker-ce={{ docker_ce_version }}
+      state: present
+      update_cache: yes
     tags:
       - prep
 
@@ -83,62 +73,7 @@
       group: docker
       append: yes
     tags:
-       - prep
-
-  - name: Uninstalls Docker-py library for Python (used by ansible)
-    shell: "pip3 uninstall docker-py -y"
-    ignore_errors: yes
-    tags:
       - prep
-      - deploy
-      - updates
-
-  - name: Installs Docker library for Python (used by ansible)
-    pip:
-      name: docker
-      state: latest
-    tags:
-      - prep
-      - deploy
-      - updates
-
-  - name: Installs Docker-Compose library for Python (used by ansible)
-    pip:
-      name: docker-compose
-      state: latest
-    tags:
-      - prep
-      - deploy
-      - updates
-
-  - name: Uninstall docker-ce-cli 
-    # This task is needed to force uninstalling thr Docker's CLI package as it can be sometimes installed in a different version, causing conflicts
-    apt:
-      name: docker-ce-cli
-      state: absent
-      force: true
-    tags:
-      - prep
-      - deploy
-
-  - name: Install docker and docker-compose 
-    apt:
-      name: ['docker-ce={{ docker_ce_version }}','docker-compose']
-      state: present
-      force: true
-      # This following option is needed in case of having accidentaly installed a higher version of Docker, incompatible to the certified one for eFiling 
-      dpkg_options: force-downgrade
-    tags:
-      - prep
-      - deploy
-
-  - name: Install GIT
-    apt:
-      name: git
-      state: present
-      update_cache: yes
-    tags:
-       - prep
 
   - name: Enable Journald persistence
     ini_file:
@@ -179,32 +114,33 @@
        - prep
        - log
 
-  - name: Install PIP
+  - name: Installs PIP
     apt:
       name: python-pip
       state: present
       update_cache: yes
     tags:
-       - prep
-
+      - prep 
+      - pip   
+      
   - name: Install PIP Prerequisites
     apt: name={{ item }} state=latest
     with_items:
       - libpq-dev
       - python-psycopg2
     tags:
-      - prep
       - pip
 
-  - name: Install Docker Compose
+  - name: Installing docker compose
     pip:
        name: docker-compose
        version: "{{ docker_compose_version if docker_compose_version else omit }}"
-       state: present
+       state: present    
     tags:
-       - prep
-       - docker-login
+      - prep
+      - compose
 
+  post_tasks:
   - name: Log into Sogema JFrog Docker registry for current user
     docker_login:
       registry: "{{docker_registry}}"
@@ -212,8 +148,7 @@
       password: "{{docker_pwd}}"
       email: "{{docker_email}}"
     tags:
-       - prep
-       - docker-login
+      - login
 
   - name: Log into Sogema JFrog Docker registry for '{{ansible_ssh_user}}' user
     docker_login:
@@ -223,48 +158,63 @@
       password: "{{docker_pwd}}"
       email: "{{docker_email}}"
     tags:
-       - prep
-       - docker-login
+      - login
 
-  - name: install nfs-common
-    apt:
-      pkg: nfs-common
+  - name: Create keycloak folder
+    file: 
+      path: /home/{{ansible_ssh_user}}/keycloak
+      owner: "{{ansible_ssh_user}}" 
+      group: sudo 
+      mode: 0755 
+      state: directory
     tags:
-      - nfs
-      - db
+      - kc
+
 
   - name: Upload docker-compose file
-    template:
-      src: ../templates/docker-compose.yml.j2
-      dest: "/home/{{ansible_ssh_user}}/docker-compose.yml"
+    template: 
+      src: ../templates/keycloak-docker-compose.yml.j2
+      dest: "{{docker_compose_folder}}/docker-compose.yml"
       owner: "{{ansible_ssh_user}}"
-      group: docker
-      mode: "u=rw,g=rw,o=r"
+      group: sudo
+      mode: 0755
     tags:
-       - prep
-       - docker-compose
-       - deploy
+      - deploy
 
   - name: Run the 'down' command for Docker Compose
     docker_service:
       project_name: "{{ansible_ssh_user}}"
-      project_src: /home/{{ansible_ssh_user}}
+      project_src: "{{docker_compose_folder}}"
       state: absent
     tags:
-       - deploy
+      - deploy
 
   - name: Run the 'up' command for Docker Compose
     docker_service:
       project_name: "{{ansible_ssh_user}}"
-      project_src: /home/{{ansible_ssh_user}}
+      project_src: "{{docker_compose_folder}}"
       state: present
       pull: "{{ pull_images if pull_images else omit }}"
       services: "{{ available_docker_services }}"
     tags:
+      - deploy
+
+  - name: Wait for port {{db_port}} to become open on the host
+    wait_for: host={{full_hostname}} port={{db_port}}
+    when: "'keycloak-db' in available_docker_services"
+    tags:
        - deploy
+       - db
+
+  - name: Create Keycloak database in the Postgres container
+    postgresql_db: name={{db_name}} port={{db_port}} login_host={{full_hostname}} login_user={{db_user}} login_password={{db_pass}}
+    when: "'keycloak-db' in available_docker_services"
+    tags:
+      - deploy
+      - db
 
 
   roles:
     - { role: soplakanets.hosts }
-    - { role: ypsman.resolv }
+    - { role: ypsman.resolv } 
 

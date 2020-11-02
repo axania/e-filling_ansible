@@ -17,40 +17,81 @@ services:
     environment:
       API_KEY: "{{ dd_key }}"
       SD_BACKEND: "docker"
-      TAGS: "environment:{{ environment_name }},role:docker,product:foncier"
+      TAGS: "environment:{{ environment_name }},role:docker,product:epip"
       DD_HOSTNAME: "{{ full_hostname }}"
       {% if is_dd_process_agent_enabled is defined %}DD_PROCESS_AGENT_ENABLED: "{{ is_dd_process_agent_enabled }}"
       {% endif %}          
       {% if is_dd_apm_enabled is defined %}DD_APM_ENABLED: "{{ is_dd_apm_enabled }}"
-      {% endif %}      
+      {% endif %}    
 {% endif %}
 
-
-
-  
-  # ****** 3rd parties ******
-
-  # RabbitMQ
-  rabbitmq:
-    image: "rabbitmq:management"
-    environment:
-      RABBITMQ_DEFAULT_USER: "guest"
-      RABBITMQ_DEFAULT_PASS: "guest"
-      RABBITMQ_DEFAULT_VHOST: "/"
+{% if is_grav_enabled %}
+  epip-docs:
+    image: sogema-docker.jfrog.io/sogema/epip-docs:{{ epip_api_version }}
+    restart: always
     ports:
-      - "15672:15672"
-      - "5672:5672"
-    labels:
-      NAME: "rabbitmq"
-    volumes:
-      - rmq_data:/var/lib/rabbitmq
-  
+      - "80:80"
+      - "443:443"
+    environment:
+      ADMIN_USER: "{{ grav_admin_user }}"
+      ADMIN_PASSWORD: "{{ grav_admin_password }}"
+      ADMIN_EMAIL: "{{ grav_admin_email }}"
+      ADMIN_PERMISSIONS: "{{ grav_admin_permissions }}"
+      ADMIN_FULLNAME: "{{ grav_admin_fullname }}"
+      ADMIN_TITLE: "{{ grav_admin_title }}"
+      DOMAIN: "{{ grav_domain }}"
+      GENERATE_CERTS: "{{ grav_generate_certs }}" 
+{% endif %}
+
+  epip-ui:
+    image: sogema-docker.jfrog.io/sogema/epip-ui:{{ epip_ui_version }}
+    restart: always
+    environment:
+      EPIP_API_URL: "http://epip-api:3200"
+    ports:
+      - 4200:4200
+    networks:
+      - epip
+
+  # EPIP API
+  epip-api:
+    image: sogema-docker.jfrog.io/sogema/epip-api:{{ epip_api_version }}
+    restart: always
+    ports:
+      - 3200:3200
+    networks:
+      - epip      
+    environment:
+      TZ: "{{timezone}}"
+      PORT: 3200
+      LOG_LEVEL_CONSOLE: "{{ log_level_console }}"
+      DB_URL: "{{ db_url }}"
+      KEYCLOAK_URL: "{{ keycloak_url }}"
+      KEYCLOAK_CLIENT_ID:  "{{ keycloak_client_id }}"
+      KEYCLOAK_REALM: "{{ keycloak_realm }}"
+      KEYCLOAK_ADMIN_USERNAME: "{{ keycloak_admin_username }}"
+      KEYCLOAK_ADMIN_PASSWORD: "{{ keycloak_admin_password }}"
+      KEYCLOAK_ADMIN_REFRESH_TOKEN_INTERVAL: "{{ keycloak_admin_refresh_token_interval }}"
+      KEYCLOAK_SEED_SIGTAS_USERNAME: "{{ keycloak_seed_sigtas_username }}"
+      KEYCLOAK_SEED_SIGTAS_PASSWORD: "{{ keycloak_seed_sigtas_password }}"
+      KEYCLOAK_SEED_DGI_USERNAME: "{{ keycloak_seed_dgi_username }}"
+      KEYCLOAK_SEED_DGI_TEMP_PASSWORD: "{{ keycloak_seed_dgi_temp_password }}"
+      SIGTAS_URL: "{{ sigtas_url }}"
+      SIGTAS_SECURED: "{{ sigtas_secured }}"
+      SIGTAS_USERNAME: "{{ sigtas_username }}"
+      SIGTAS_PASSWORD: "{{ sigtas_password }}"
+      REDIS_HOST: "redis"
+      REDIS_PORT: 6379
+      EPIP_UI_URL: "{{ epip_ui_url }}"
+      REFRESH_ACCESS_CRON_TIME: "{{ refresh_access_cron_time }}"
+      REMINDER_EMAILS_ENABLED: "{{ reminder_emails_enabled }}"
+
   # ****** Persistence ******
 
   # MongoDB
   # Databases : epip
   mongo:
-    image: mongo
+    image: mongo:3.4.4
     restart: always
     ports:
       - 27017:27017
@@ -59,10 +100,32 @@ services:
     networks:
       - epip
 
+  # Redis
+  redis:
+    image: redis
+    restart: always
+    ports: 
+      - 6379:6379
+    networks: 
+      - epip
+
+{% if is_redis_commander_enabled %}
+  # Redis Commander (Redis client)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    restart: always
+    environment:
+      REDIS_HOSTS: redis
+    ports:
+    - 8081:8081
+    networks:
+    - epip
+{% endif %}
+
+
 # ****** Volumes ******
 volumes:
   mongo_data:
-  rmq_data:
 
 # ****** Networks ******
 networks:
