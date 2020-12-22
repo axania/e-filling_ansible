@@ -105,7 +105,8 @@
   - name: Installs Docker-Compose library for Python (used by ansible)
     pip:
       name: docker-compose
-      state: latest
+      version: 1.21.2
+      state: present
     tags:
       - prep
       - deploy
